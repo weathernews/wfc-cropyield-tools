@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Crop Yeild Forecast tools</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.4/Chart.min.js"></script>
+    <script src="./js/index.js"></script>
+
+</head>
+<style>
+li {
+    list-style: none;
+}
+ul {
+  display: flex;
+}
+
+#loader-bg {
+  display: none;
+  position: fixed;
+  width: 700px;
+  height: 500px;
+  top: 0px;
+  left: 0px;
+  background: #fff;
+  z-index: 1;
+}
+#loader {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 200px;
+  height: 200px;
+  margin-top: -100px;
+  margin-left: -100px;
+  text-align: center;
+  color: #fff;
+  z-index: 2;
+}
+table {
+ text-align: center;
+ border-collapse: collapse;
+ width:100%;
+}
+th {
+    padding: 10px;
+    width:100px;
+    color : #fff;
+ background: #008000;
+ border: solid 1px #000;
+}
+td {
+    padding: 10px;
+
+ border: solid 1px #000;
+}
+td:first-child {
+    background: #008000;
+
+    color : #fff;
+    font-weight: bold;
+}
+.menu{
+    position: relative;
+    font-weight: bold;
+    font-size: 20px;
+
+}
+.box1{
+  width: 700px;
+  height: 500px;
+  position: relative;
+}
+ 
+.box2{
+    position: absolute;
+    padding: 10px;
+    top:150px;
+    left:0px;
+    width:1200px;
+  
+}
+.box5{
+    position: absolute;
+    padding: 10px;
+    top:150px;
+    left: 1250px;
+    #right:0px;
+    width:600px;
+    height:600px;
+}
+
+.canvas{
+  width: 50%;
+  height: 200px;
+  padding: 10px;
+  position: relative;
+}
+.box3{
+  width: 90%;
+  height: 800px;
+  padding: 10px;
+  position: relative;
+}
+.box4{
+  width: 90%;
+  padding: 10px;  
+  position: relative;
+}
+  </style>
+<body onload="init();">
+  <h3>Crop Yield&Phenology Stage & Weather Forecast</h3>
+  Contents:<select name="content">
+    <option selected value='YIELD'>Crop Yeild</option>
+    <option value='PROG'>Phenology Stage</option>
+    <option value='WX'>Weather Forecast</option>
+  </select>
+  State:<select name="state">
+    <option selected value=ARKANSAS>ARKANSAS</option>
+    <option value="ILLINOIS">ILLINOIS</option>
+    <option value="INDIANA">INDIANA</option>
+    <option value="IOWA">IOWA</option>
+    <option value="KANSAS">KANSAS</option>
+    <option value="KENTUCKY">KENTUCKY</option>
+    <option value="LOUISIANA">LOUISIANA</option>
+    <option value="MICHIGAN">MICHIGAN</option>
+    <option value="MINNESOTA">MINNESOTA</option>
+    <option value="MISSISSIPPI">MISSISSIPPI</option>
+    <option value="MISSOURI">MISSOURI</option>
+    <option value="NEBRASKA">NEBRASKA</option>
+    <option value="NORTH CAROLINA">NORTH CAROLINA</option>
+    <option value="NORTH DAKOTA">NORTH DAKOTA</option>
+    <option value="OHIO">OHIO</option>
+    <option value="SOUTH DAKOTA">SOUTH DAKOTA</option>
+    <option value="TENNESSEE">TENNESSEE</option>
+    <option value="WISCONSIN">WISCONSIN</option>
+  </select>
+
+  Year:<select name="year">
+    <option selected value=2024>2024</option>
+    <option value=2023>2023</option>
+    <option value=2022>2022</option>
+  </select>
+  <a href="./field_ha_2019_2024.html">Planted Area(2019-2024)</a>
+  <p>
+<select id="secondDropdown" name='stage' style="display:none;">
+        <!-- 動的にオプションが追加される -->
+    </select>
+    <div id='issue time' class="menu">
+    </div>
+    <div id='state' class="menu">
+	</div>
+  <p>
+    
+    <div id='map' class="box1"> </div>
+    <div id='wx-table' class="box2"></div>
+    <div id='chart3' class="box5"><canvas id="myChart3"></canvas></div>
+    <canvas id="myChart"></canvas>
+    <canvas id="myChart2"></canvas>
+    <div id='point-table' class="box4"></div>
+    <div id="table-container" class="box3"></div>
+
+</body>
+</html>
