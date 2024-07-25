@@ -4,13 +4,17 @@ var chart3;
 
 function main(content,state,year){
 
+    
 
     // 画像、テーブル初期化
     $('img').remove();
     $('table').remove();
 
     if (content == 'YIELD'){
-	
+	$('#state_select').show();
+	$('#year_select').show();
+	$('#area').show();
+	$('#downloadCsv').show();
 	//make map
 	const url = './plot_us.cgi?year='+year+'&content='+content;
 	$(document).ready(function() {
@@ -26,7 +30,10 @@ function main(content,state,year){
 
     if (content == 'PROG'){
 	$('img').remove();
-
+	$('#state_select').hide()
+	$('#year_select').hide()
+	$('#area').hide()
+	$('#downloadCsv').show();
         $secondDropdown.empty();  // 既存のオプションをクリア
 	
 	
@@ -40,21 +47,24 @@ function main(content,state,year){
 	const url1 = './png/'+stage+'_usa.png';
 
 	$(document).ready(function() {
+	    $('img').remove();
 	    var image = new Image();
 	    image.src = url1;
 	    image.width = 700;
 	    $('#map').append(image);
-	    console.log(url1);
+
 	});
 	//make map
 	$('#secondDropdown').change(function() {
 	    // 画像、テーブル初期化
-	    $('img').remove();
+
 
 	    var selectedOption = $(this).val();
 	    const url1 = './png/'+selectedOption+'_usa.png';
 	    
 	    $(document).ready(function() {
+		    
+		$('img').remove();
 		var image = new Image();
 		image.src = url1;
 		image.width = 700;
@@ -79,21 +89,6 @@ function main(content,state,year){
     });
     
 
-
-
-    //<li><img src="image1.jpg" width="300" height="200" alt=""></li>
-    //var image1 = new Image();
-    //image1.src = url1;
-	    //image1.width = 700;
-	    //var image2 = new Image();
-	    //image2.src = url2;
-	    //image2.width = 700;
-	    //$('#map').append(image1);
-	    //$('#map').append(image2);
-	    
-    //});
-    //};
-    
     
     // サーバー上のCSVファイルのURL
     if (content == 'YIELD'){
@@ -106,7 +101,10 @@ function main(content,state,year){
 
     }
     if ( content == 'WX'){
-
+	$('#state_select').show()
+	$('#year_select').hide()
+	$('#area').hide()
+	$('#downloadCsv').hide();
 	let s = state.replace(" ","");
 	var csvUrl = './data/'+state+'_WX_output.csv';
 	var csvUrl2 = './data/'+state+'_WX_lrf.csv';
@@ -119,7 +117,7 @@ function main(content,state,year){
     }
     //
     
-    console.log(csvUrl);
+
     $.ajax({
 	url: csvUrl,
         async : false,
@@ -143,7 +141,7 @@ function main(content,state,year){
 	});
 	var headers = 	csv.shift();
 	csv2.shift();
-	console.log(headers);
+
 
 	
 	var c = 0;
@@ -151,6 +149,7 @@ function main(content,state,year){
 	var ave = Array(6);
 
 	ave[0]  = 'All State Average';
+
 	csv.forEach(function(row){
 
 	    csv[c][1] = csv[c][1] * csv2[c][1] / 1000;
@@ -162,25 +161,7 @@ function main(content,state,year){
 
 	    c = c+1;
 	});
-	var average = function(arr) { //引数として渡された配列の平均値(average)を算出
-	    var sum = 0;
-	    for (var i = 0,len = arr.length; i < len; i++) {
-		sum += arr[i];
-	    }  
-	    return sum / arr.length; //平均値を返す
-	};
-	var average_arr = function(arr) { //2次元配列の列ごとの平均値を求める
-	    var arr_2d = [];
-	    for (var i = 0, len_1 = arr[i].length; i < len_1; i++) {
-		var arr_temp = []; 
-		for (var j = 0, len_2 = arr.length; j < len_2; j++) {
-		    arr_temp.push(arr[j][i]); //2次元配列の各列を1次元配列として抽出
-        }
-		arr_2d.push(average(arr_temp)); //2次元配列の各列ごとの平均値を抽出
-	    }
-	    return arr_2d; //平均値の配列を返す
-	}
-	
+
 	var array1 = [];
 	var array2 = [];
 	var array3 = [];
@@ -214,18 +195,57 @@ function main(content,state,year){
 
 	addtable_crop(csv,headers,ave,tbl);
     };
-
+    
     if (content == 'PROG'){
-
-
+	
 	document.getElementById('point-table').style.display = 'none';
 	document.getElementById('table-container').style.visibility = 'block';
 	document.getElementById('wx-table').style.display = 'none';
 	document.getElementById('myChart').style.display = 'none';
 	document.getElementById('myChart2').style.display = 'none';
 	document.getElementById('myChart3').style.display = 'none';
-	addtable_prog(csv);	
+
+	let c = 0;
+
+	let ave = Array(6);
+
+	ave[0]  = 'All State Average';
+	
+	
+	let array1 = [];
+	let array2 = [];
+	let array3 = [];
+	let array4 = [];
+	let array5 = [];
+	let array6 = [];
+	var headers = 	csv.shift();
+
+	csv.forEach(function(row){	    
+	    row = row.map(Number);
+	    array1.push(row[1]);
+	    array2.push(row[2]);
+	    array3.push(row[3]);
+	    array4.push(row[4]);
+	    array5.push(row[5]);
+	    array6.push(row[6]);
+	    
+		    
+	});
+	console.log(array1);
+	ave[1] = average(array1);
+	ave[2] = average(array2);
+	ave[3] = average(array3);
+	ave[4] = average(array4);
+	ave[5] = average(array5);
+	ave[6] = average(array6);
+	
+
+	
+	addtable_prog(csv,ave);	
     };
+
+
+    
     if (content == 'WX'){
 	document.getElementById('point-table').style.display = 'none';
 	document.getElementById('table-container').style.visibility = 'none';
@@ -267,10 +287,42 @@ function main(content,state,year){
 	addchart_wx_mrf(csv_mrf);
 	addchart_wx_latest(csv_latest);
     }
-    
+
+}
+
+function tableToCSV() {
+    var csv = [];
+    $('#table-container tr').each(function() {
+        var row = [];
+        $(this).find('th, td').each(function() {
+            var text = $(this).text();
+            row.push('"' + text.replace(/"/g, '""') + '"');
+        });
+        csv.push(row.join(','));
+    });
+    return csv.join('\n');
+}
+
+function downloadCSV(csv, filename) {
+    var blob = new Blob([csv], { type: 'text/csv' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 
+function average(arr){
+    
+    var sum = 0;
+    for (var i = 0,len = arr.length; i < len; i++) {
+	sum += arr[i];
+    }
+
+    return sum / arr.length; //平均値を返す
+};
 
 
 
@@ -286,6 +338,7 @@ function addpoint(csv,state){
         table += '<th>' + header + '</th>';
     });
     table += '</tr></thead>';
+
     // データをテーブルに追加
     table += '<tbody><tr>';
     
@@ -340,12 +393,12 @@ function addtable_crop(csv,headers,ave,tbl){
     csv.forEach(function(row) {
 	var flag = tbl.indexOf(row[0]);
 
-	console.log(row[0],flag);
+
 	if ( flag != -1) {
-	    console.log(row);
+
 	    table +='<td>'+row[0]+'</td>';
 	    row = row.map(Number);
-	    console.log(row);
+
 	    table +='<td>'+Math.round(row[1] * 100)/100+'</td>';
 	    table +='<td>'+Math.round(row[2] * 100)/100+'</td>';
 	    table +='<td>'+Math.round(row[3] * 100)/100+'</td>';
@@ -383,7 +436,7 @@ function addtable_crop(csv,headers,ave,tbl){
     
 }
 
-function addtable_prog(csv){
+function addtable_prog(csv,ave){
 
     var table = '<table border="1">';
     table += '<thead><tr>';
@@ -391,7 +444,7 @@ function addtable_prog(csv){
     
     // ヘッダーをテーブルに追加
     data = csv.data;
-    console.log(csv[0]);    
+
 
     //var headers = ['State','EMERGED','BLOOMING','SETTING PODS','DROPPING LEAVES','HARVESTED'];
     var headers = ['州','発芽','開花','結実','落葉','収穫済み'];
@@ -410,7 +463,7 @@ function addtable_prog(csv){
 	if (row[0] != "State"){
 	    table +='<td>'+row[0]+'</td>';
 	    row = row.map(Number);
-	    console.log(row);
+
 	    table +='<td>'+Math.round(row[1] * 100)/100+'</td>';
 	    table +='<td>'+Math.round(row[2] * 100)/100+'</td>';
 	    table +='<td>'+Math.round(row[3] * 100)/100+'</td>';
@@ -421,6 +474,13 @@ function addtable_prog(csv){
 	c = c+1;
     });
 
+    table +='<td>'+ave[0]+'</td>';
+    table +='<td>'+Math.round(ave[1] * 100)/100+'</td>';
+    table +='<td>'+Math.round(ave[2] * 100)/100+'</td>';
+    table +='<td>'+Math.round(ave[3] * 100)/100+'</td>';
+    table +='<td>'+Math.round(ave[4] * 100)/100+'</td>';
+    table +='<td>'+Math.round(ave[5] * 100)/100+'</td>';
+    table +='</tr>'
     table += '</tbody>';            
     table += '</table>';
     
@@ -433,15 +493,14 @@ function addtable_prog(csv){
 
 function addtable_wx(csv,csv2){
 
-    console.log(csv2);
-    console.log(csv);
+
     var table = '<table border="1">';
     table += '<thead><tr>';
 
     
     // ヘッダーをテーブルに追加
     data = csv.data;
-    console.log(csv[0]);    
+
 
 
     var headers = ['Month',
@@ -497,9 +556,9 @@ function addissutime(){
     var d = new Date().getDate() ;
     m = String(m).padStart(2, '0');
     d = String(d).padStart(2, '0');
-    console.log(y,m,d)
+    var date = +y + "-" + m + "-" + d;
     document.getElementById('issue time').innerHTML = 'Issue Time:'+y + "-" + m + "-" + d;
-
+    return date
     
 
 }
@@ -520,7 +579,7 @@ function addchart_wx_latest(csv){
 
     //見出し行削除
     csv.shift();//AREA1,date,State,TAVG,TAVG_NORYR,TMAX,TMAX_NORYR,TMIN,TMIN_NORYR,PRCP,PRCP_NORYR
-    console.log(csv[1]);
+
     csv.forEach(function(row) {
 	dates.push(row[1]);
 	yield_hist.push(row[2]/1000)
@@ -554,7 +613,8 @@ function addchart_wx_latest(csv){
 			fontSize: 20,
 		    }
 		}],
-		
+
+
 		yAxes: [{
 		    scaleLabel:{
 			display:true,
@@ -565,9 +625,7 @@ function addchart_wx_latest(csv){
 		    type: "linear", 
 		    position: "left",
 		    ticks: {
-			max: 10000,
-			min: 0,
-			stepSize: 2000,
+			min:0,
 		    }
 		}],
 	    },
@@ -593,7 +651,7 @@ function addchart_wx(csv){
 
     //見出し行削除
     csv.shift();//AREA1,date,State,TAVG,TAVG_NORYR,TMAX,TMAX_NORYR,TMIN,TMIN_NORYR,PRCP,PRCP_NORYR
-    console.log(csv[0]);
+
     csv.forEach(function(row) {
 	dates.push(row[2]);
 	tmax.push(row[5]);
@@ -746,11 +804,11 @@ function addchart_wx_mrf(csv){
     const tmin = [];
     const prcp = [];
 
-    //const dates,tmax,tmin,prcp = [],[],[],[];
+
     //見出し行削除
-    csv.shift();//AREA1,date,State,TAVG,TAVG_NORYR,TMAX,TMAX_NORYR,TMIN,TMIN_NORYR,PRCP,PRCP_NORYR
-    //datetime,TMAX,TMIN,PRCP,State
-    console.log(csv[0]);
+    csv.shift();
+
+
     csv.forEach(function(row) {
 	dates.push(row[0]);
 	tmax.push(row[1]);
@@ -844,7 +902,7 @@ function addchart_wx_mrf(csv){
 
 function init(){    
     $('img').remove();
-    addissutime();
+    let datestr = addissutime();
 
 
 
@@ -883,7 +941,7 @@ function init(){
     
     if (contentval){
 	content = contentval;
-	console.log(content);
+
     }
     
     addstate(state);    
@@ -895,6 +953,7 @@ function init(){
 	const content = $('select[name="content"] option:selected').val();
 	const state = $('select[name="state"] option:selected').val();
 	const year = $('select[name="year"] option:selected').val();
+
 	main(content,state,year);
 	
     });
@@ -903,6 +962,7 @@ function init(){
 	const content = $('select[name="content"] option:selected').val();
 	const state = $('select[name="state"] option:selected').val();
 	const year = $('select[name="year"] option:selected').val();
+
 	main(content,state,year);
 	
     });
@@ -918,6 +978,16 @@ function init(){
 	
     });
 
-
+    
+    $('#downloadCsv').on('click', function() {
+	content = $('select[name="content"] option:selected').val();
+	let name = "crop_yield";
+	if ( content == "PROG"){
+	    name = "crop_progress";
+	}
+        let csv = tableToCSV();
+        let filename = datestr+'_'+name+'_data.csv';
+        downloadCSV(csv, filename);
+    });
 				       
 }

@@ -11,6 +11,8 @@
 
 </head>
 <style>
+
+
 li {
     list-style: none;
 }
@@ -102,7 +104,6 @@ td:first-child {
 }
 .box3{
   width: 90%;
-  height: 800px;
   padding: 10px;
   position: relative;
 }
@@ -119,7 +120,7 @@ td:first-child {
     <option value='PROG'>Phenology Stage</option>
     <option value='WX'>Weather Forecast</option>
   </select>
-  State:<select name="state">
+  State:<select id="state_select" name="state">
     <option selected value=ARKANSAS>ARKANSAS</option>
     <option value="ILLINOIS">ILLINOIS</option>
     <option value="INDIANA">INDIANA</option>
@@ -140,12 +141,12 @@ td:first-child {
     <option value="WISCONSIN">WISCONSIN</option>
   </select>
 
-  Year:<select name="year">
+  Year:<select id="year_select" name="year">
     <option selected value=2024>2024</option>
     <option value=2023>2023</option>
     <option value=2022>2022</option>
   </select>
-  <a href="./field_ha_2019_2024.html">Planted Area(2019-2024)</a>
+  <a id='area' href="./field_ha_2019_2024.html">Planted Area(2019-2024)</a>
   <p>
 <select id="secondDropdown" name='stage' style="display:none;">
         <!-- 動的にオプションが追加される -->
@@ -163,6 +164,8 @@ td:first-child {
     <canvas id="myChart2"></canvas>
     <div id='point-table' class="box4"></div>
     <div id="table-container" class="box3"></div>
-
+    <button id="downloadCsv" class="download">CSV Download</button>
+      
+    
 </body>
 </html>
