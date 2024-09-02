@@ -75,14 +75,14 @@ tbl = tbl[tbl['AREA1'] != 'HI']
 
 
 df = pd.merge(tbl,df,how="outer")
-#df = df.sort_values("State")
+df['YIELD'] = df['YIELD'] /  0.021772  
+
 df['date'] = datetime
 
 d = df.rename(columns={"YIELD":"Value"})
+
 d.to_csv(outdir+"/ton_ha"+datetime[0:4]+'.csv')
-#df = df.sort_values("YIELD")
-#tbl2 = pd.read_csv('../tbl/state.tbl')
-#df = pd.merge(tbl2,df)
+
 df.set_index('State',inplace=True)
 
 df.to_csv(outdir+"/"+datetime+'_yield.csv')

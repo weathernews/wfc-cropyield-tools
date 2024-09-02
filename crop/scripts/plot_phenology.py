@@ -92,7 +92,7 @@ def plot_prog(stage):
     # set the range for the choropleth values with the upper bound the rounded up maximum value
     #vmin, vmax = gdf1.Value.min(), gdf1.Value.max() #math.ceil(gdf.pct_food_insecure.max())
     vmin = 0
-    vmax = 99
+    vmax = 100
     #Choose the continuous colorscale "YlOrBr" from https://matplotlib.org/stable/tutorials/colors/colormaps.html
     colormap = "YlGn"
     

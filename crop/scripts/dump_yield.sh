@@ -19,6 +19,6 @@ python3.7 merge_yield.py $outfile
 date=`basename $outfile _yield.csv`
 
 python3.7 add_latest.py $OUTDIR/YIELD_output.csv $OUTDIR/latest.csv $date
-echo python3.7 make_latest.py $OUTDIR/YIELD_output.csv $OUTDIR/latest.csv $date
+echo python3.7 add_latest.py $OUTDIR/YIELD_output.csv $OUTDIR/latest.csv $date
 echo "Done. dump csv"
 exit
