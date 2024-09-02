@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>Crop Yeild Forecast tools</title>
+    <title>収量予測ツール</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
@@ -11,7 +11,9 @@
 
 </head>
 <style>
-
+select{
+    font-size:18px;
+}
 
 li {
     list-style: none;
@@ -76,6 +78,7 @@ td:first-child {
   width: 700px;
   height: 500px;
   position: relative;
+
 }
  
 .box2{
@@ -84,6 +87,7 @@ td:first-child {
     top:150px;
     left:0px;
     width:1200px;
+
   
 }
 .box5{
@@ -103,54 +107,55 @@ td:first-child {
   position: relative;
 }
 .box3{
+
   width: 90%;
   padding: 10px;
   position: relative;
 }
 .box4{
+
   width: 90%;
   padding: 10px;  
   position: relative;
 }
   </style>
 <body onload="init();">
-  <h3>Crop Yield&Phenology Stage & Weather Forecast</h3>
-  Contents:<select name="content">
-    <option selected value='YIELD'>Crop Yeild</option>
-    <option value='PROG'>Phenology Stage</option>
-    <option value='WX'>Weather Forecast</option>
+  <h3>収量,生育状況,気象予測</h3>
+    <select name="content">
+    <option selected value='YIELD'>収量</option>
+    <option value='PROG'>生育状況</option>
+    <option value='WX'>気象予測</option>
   </select>
-  State:<select id="state_select" name="state">
-    <option selected value=ARKANSAS>ARKANSAS</option>
-    <option value="ILLINOIS">ILLINOIS</option>
-    <option value="INDIANA">INDIANA</option>
-    <option value="IOWA">IOWA</option>
-    <option value="KANSAS">KANSAS</option>
-    <option value="KENTUCKY">KENTUCKY</option>
-    <option value="LOUISIANA">LOUISIANA</option>
-    <option value="MICHIGAN">MICHIGAN</option>
-    <option value="MINNESOTA">MINNESOTA</option>
-    <option value="MISSISSIPPI">MISSISSIPPI</option>
-    <option value="MISSOURI">MISSOURI</option>
-    <option value="NEBRASKA">NEBRASKA</option>
-    <option value="NORTH CAROLINA">NORTH CAROLINA</option>
-    <option value="NORTH DAKOTA">NORTH DAKOTA</option>
-    <option value="OHIO">OHIO</option>
-    <option value="SOUTH DAKOTA">SOUTH DAKOTA</option>
-    <option value="TENNESSEE">TENNESSEE</option>
-    <option value="WISCONSIN">WISCONSIN</option>
+  州:<select id="state_select" name="state">
+    <option selected value=ARKANSAS>アーカンソー</option>
+    <option value="ILLINOIS">イリノイ</option>
+    <option value="INDIANA">インディアナ</option>
+    <option value="IOWA">アイオワ</option>
+    <option value="KANSAS">カンザス</option>
+    <option value="KENTUCKY">ケンタッキー</option>
+    <option value="LOUISIANA">ルイジアナ</option>
+    <option value="MICHIGAN">ミシガン</option>
+    <option value="MINNESOTA">ミネソタ</option>
+    <option value="MISSISSIPPI">ミシシッピ</option>
+    <option value="MISSOURI">ミズーリ</option>
+    <option value="NEBRASKA">ネブラスカ</option>
+    <option value="NORTH CAROLINA">ノースカロライナ</option>
+    <option value="NORTH DAKOTA">ノースダコタ</option>
+    <option value="OHIO">オハイオ</option>
+    <option value="SOUTH DAKOTA">サウスダコタ</option>
+    <option value="TENNESSEE">テネシー</option>
+    <option value="WISCONSIN">ウィスコンシン</option>
   </select>
 
-  Year:<select id="year_select" name="year">
+ 年:<select id="year_select" name="year">
     <option selected value=2024>2024</option>
-    <option value=2023>2023</option>
-    <option value=2022>2022</option>
   </select>
-  <a id='area' href="./field_ha_2019_2024.html">Planted Area(2019-2024)</a>
+  <a id='area' href="./field_acre_2019_2024.html">Planted Area(2019-2024)</a>
   <p>
-<select id="secondDropdown" name='stage' style="display:none;">
-        <!-- 動的にオプションが追加される -->
-    </select>
+    <select id="firstDropdown" name='stage_crop' style="display:none;"></select>
+    <!-- 動的にオプションが追加される -->
+    <select id="secondDropdown" name='stage_crop' style="display:none;"></select>
+    
     <div id='issue time' class="menu">
     </div>
     <div id='state' class="menu">
@@ -164,7 +169,7 @@ td:first-child {
     <canvas id="myChart2"></canvas>
     <div id='point-table' class="box4"></div>
     <div id="table-container" class="box3"></div>
-    <button id="downloadCsv" class="download">CSV Download</button>
+    <button id="downloadCsv" class="download">CSV ダウンロード</button>
       
     
 </body>
