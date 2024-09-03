@@ -1,7 +1,7 @@
 #!/bin/bash
 
 SCRIPT_DIR=$(cd $(dirname $0); pwd)
-$SCRIPT_DIR
+cd $SCRIPT_DIR
 
 # update obs data
 outdata="../data/gsod/2024.tar.gz"
