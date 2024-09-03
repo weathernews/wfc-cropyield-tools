@@ -57,7 +57,7 @@ def makeColorColumn(gdf,variable,vmin,vmax):
 def plot_yield():
     #filename = "./data/YIELD_output.csv"
     filename = './data/ton_ha'+str(year)+'.csv'
-    filename2 = './data/field_ha'+str(year)+'.csv'
+    filename2 = './data/field_acre_'+str(year)+'.csv'
     # load the excel file into a pandas dataframe & skip header rows
     #df = pd.read_excel(filename,skiprows=4)
     df = pd.read_csv(filename)
@@ -93,7 +93,7 @@ def plot_yield():
     vmin = 0 * 100
     #vmax = 4.4 * 1000
     #vmin = 1.5 * 1000
-    vmax = 3.9 * 1000
+    vmax = 6.9 * 1000
     #Choose the continuous colorscale "YlOrBr" from https://matplotlib.org/stable/tutorials/colors/colormaps.html
     colormap = "YlOrBr"
     #gdf1 = gdf1.fillna(0)
@@ -308,8 +308,8 @@ if __name__ == '__main__':
         year = form['year'].value
     
     #content='PROG'
-    #content='YIELD'
-    content='per'
+    content='YIELD'
+    #content='per'
 
     # GET requestの取得                                                                                                                                              
     if 'content' in form:
