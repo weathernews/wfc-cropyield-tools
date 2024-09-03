@@ -75,8 +75,8 @@ def plot_yield():
     #gdf1 = gdf.merge(df,left_on='STUSPS',right_on='AREA1')
     gdf1 = gdf.merge(df,left_on='STUSPS',right_on='AREA1')
     gdf1['NAME'] = gdf1.NAME.str.upper()
-    tbl = pd.read_csv('./state.tbl')
-    gdf1['Value'] = gdf1.apply(lambda row: row['Value'] if row['NAME'] in tbl['NAME'].values else np.nan,
+    tbl = pd.read_csv('./tbl/state.tbl')
+    gdf1['Value'] = gdf1.apply(lambda row: row['Value'] if row['NAME'] in tbl['State'].values else np.nan,
                                axis=1
                                )
 
@@ -186,8 +186,8 @@ def plot_per():
     #gdf1 = gdf.merge(df,left_on='STUSPS',right_on='AREA1')
     gdf1 = gdf.merge(df,left_on='STUSPS',right_on='AREA1')
     gdf1['NAME'] = gdf1.NAME.str.upper()
-    tbl = pd.read_csv('./state.tbl')
-    gdf1['Value'] = gdf1.apply(lambda row: row['Value'] if row['NAME'] in tbl['NAME'].values else np.nan,
+    tbl = pd.read_csv('./tbl/state.tbl')
+    gdf1['Value'] = gdf1.apply(lambda row: row['Value'] if row['NAME'] in tbl['State'].values else np.nan,
                                axis=1
                                )
 
