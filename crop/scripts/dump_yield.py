@@ -75,7 +75,7 @@ tbl = tbl[tbl['AREA1'] != 'HI']
 
 
 df = pd.merge(tbl,df,how="outer")
-df['YIELD'] = df['YIELD'] /  0.021772  
+df['YIELD'] = df['YIELD']
 
 df['date'] = datetime
 
