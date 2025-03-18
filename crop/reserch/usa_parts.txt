@@ -1,0 +1,60 @@
+scripts/add_latest.py:        df_melted = df.melt(id_vars=['State'], var_name='datetime', value_name='value')
+→.../data/field_output.csvを読んで州の名前を拾っている。
+　field_output.csvのブラジル版はいるかも。このコード自体は直す必要なし。★
+
+scripts/convlatest.py:        df = df.sort_values(by='datetime')
+→上と同様。
+
+scripts/dump_yield.py:    f = "../tbl/USSTCC.xml"
+→USTCCを読み込む。USTCCはアメリカの州のエリアコードリストを持っているよう。★
+　USTCCのブラジル版が必要かもしれない。
+
+scripts/merge_gsod_gsom.py:    f = '../tbl/USSTCC.xml'
+→USTCCを読み込む。ブラジル版が必要かもしれない。
+
+scripts/merge_yield.py:df1 = df1.rename(columns={"YIELD":df1.date.values[0]})
+→引数で渡されたdfのYIELD列を読んでいる。何を引数で渡す想定か現時点で不明。
+
+scripts/plot_phenology.py:    gdf1[stage] = gdf1.apply(lambda row: row[stage] if row['NAME'] in tbl['State'].values else np.nan,
+→../tbl/state.tblを読んでいる。state.tblのブラジル版は必要。★
+
+scripts/plot_phenology.py:    plt.savefig('../png/'+stage+'_usa.png')
+→保存ファイルをusaにしている。保存先は別にすべきか。。。
+
+scripts/plot_phenology.py:    gdf1['Value'] = gdf1.apply(lambda row: row['Value'] if row['NAME'] in tbl['NAME'].values else np.nan,
+→/cb_2018_us_state_20m.shpを読み込んでいる。これのダミーがいるのかどうかは未調査。
+
+scripts/plot_phenology.py:def plot_usa():
+→アメリカ版のプロット関数。これを真似てbrazil版プロット関数を作ればいいのか。★
+
+scripts/plot_phenology.py:    usa = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+scripts/plot_phenology.py:    usa = usa[(usa.continent == 'North America') & (usa.name == 'United States of America')]
+scripts/plot_phenology.py:    usa.boundary.plot(ax=ax)
+scripts/plot_phenology.py:    usa.plot(ax=ax, column='iso_a3', cmap='tab20', categorical=True, legend=True)
+→変数名がusa、これは直さなくても回るならそのままでいいかも。
+
+scripts/plot_phenology.py:    plt.title('Map of USA with States Colored Randomly')
+→グラフのタイトル。モックという意味ではこれは直す必要あり。★
+
+scripts/plot_phenology.py:    plt.savefig('usa.png', bbox_inches='tight',dpi=300)
+→保存名称がusa.png。状況に応じて修正するかどうか。。。
+
+scripts/read_lrf.py:    f = './USSTCC.xml'
+→USTCCを読み込む。ブラジル版が必要かもしれない。★
+
+scripts/read_lrf.py:            if C == 'UNITED STATES':
+→読み込んでるファイルの国指定（COUNTRY）がアメリカなら以下を実行となっているif文。★
+
+scripts/read_mrf.py:    f = './USSTCC.xml'
+→USTCCを読み込む。ブラジル版が必要かもしれない。★
+
+scripts/read_mrf.py:            if C == 'UNITED STATES':
+→読み込んでるファイルの国指定（COUNTRY）がアメリカなら以下を実行となっているif文。★
+
+scripts/state_field_ACRES.py:    pivot_df = ha.pivot(index='State', columns='Year', values='Value')
+→まずファイル名のACRESはアメリカの面積単位？だとすると、ブラジルなら何だろうか？このままでいいならその方がいい。
+　mainの中で読んでいるcsvファイルの列名にstateを含む。引数で渡しているファイルはブラジル版である必要がありそう。
+
+scripts/state_field.py:    pivot_df = ha.pivot(index='State', columns='Year', values='Value')
+scripts/state_yield.py:    pivot_df = ton_ha.pivot(index='State', columns='Year', values='Value')
+→引数で渡しているcsvファイルの列名にstateを含む。引数で渡しているファイルはブラジル版である必要がありそう。
