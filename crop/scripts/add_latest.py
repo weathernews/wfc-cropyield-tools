@@ -44,6 +44,11 @@ if __name__ == "__main__":
     # データフレームを "長い形式"に変換
     df_melted = df.melt(id_vars=['State'], var_name='datetime', value_name='value')
 
+    states = ['ILLINOIS','IOWA','MINNESOTA','INDIANA','OHIO','MISSOURI','NEBRASKA','NORTH DAKOTA','SOUTH DAKOTA','ARKANSAS','KANSAS','MISSISSIPPI','WISCONSIN','KENTUCKY','MICHIGAN','TENNESSEE','NORTH CAROLINA','LOUISIANA']
+
+
+    df_melted = df_melted[df_melted['State'].isin(states)]
+    
     # 全州の月別平均と合計を計算
     df_avg = (
         df_melted
