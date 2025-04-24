@@ -62,25 +62,41 @@ def plot_yield():
     #df = pd.read_excel(filename,skiprows=4)
     df = pd.read_csv(filename)
     df2 = pd.read_csv(filename2)
-    df['Value'] = df['Value'] * df2['Value'] / 100000
-    
+
+    df = pd.merge(df,df2,on='State')
+
+    df['Value'] = df['Value_x'] * df['Value_y'] / 10000
+
 
     df = df[['AREA1','Value']]
-    
+    df = df.dropna()
+
     gdf = gpd.read_file(os.getcwd()+'/cb_2018_us_state_20m.shp')
     gdf = gdf[gdf.STUSPS != 'AK']
     gdf = gdf[gdf.STUSPS != 'HI']
+
+ 
+
     
     #print(gdf.STUSPS.unique())
     #gdf1 = gdf.merge(df,left_on='STUSPS',right_on='AREA1')
     gdf1 = gdf.merge(df,left_on='STUSPS',right_on='AREA1')
+    
     gdf1['NAME'] = gdf1.NAME.str.upper()
-    tbl = pd.read_csv('./tbl/state.tbl')
-    gdf1['Value'] = gdf1.apply(lambda row: row['Value'] if row['NAME'] in tbl['State'].values else np.nan,
+    states = ['ILLINOIS','IOWA','MINNESOTA','INDIANA','OHIO','MISSOURI','NEBRASKA','NORTH DAKOTA','SOUTH DAKOTA','ARKANSAS','KANSAS','MISSISSIPPI','WISCONSIN','KENTUCKY','MICHIGAN','TENNESSEE','NORTH CAROLINA','LOUISIANA']
+    print(gdf1)
+
+    gdf1 = gdf1[gdf1['NAME'].isin(states)]
+    print(gdf1)
+
+
+    tbl = pd.read_csv('./state.tbl')
+    #gdf1['Value'] = gdf1['Value'] * 10
+    gdf1['Value'] = gdf1.apply(lambda row: row['Value'] if row['NAME'] in tbl['NAME'].values else np.nan,
                                axis=1
                                )
 
-
+    
 
 
     # **************************
@@ -90,10 +106,10 @@ def plot_yield():
     # make a column for value_determined_color in gdf
     # set the range for the choropleth values with the upper bound the rounded up maximum value
     #vmin, vmax = gdf1.Value.min(), gdf1.Value.max() #math.ceil(gdf.pct_food_insecure.max())
-    vmin = 0 * 100
+    vmin = 0 * 1000
     #vmax = 4.4 * 1000
     #vmin = 1.5 * 1000
-    vmax = 6.9 * 1000
+    vmax = 6.9 * 10000
     #Choose the continuous colorscale "YlOrBr" from https://matplotlib.org/stable/tutorials/colors/colormaps.html
     colormap = "YlOrBr"
     #gdf1 = gdf1.fillna(0)
@@ -107,20 +123,20 @@ def plot_yield():
     
     
     # create figure and axes for Matplotlib
-    fig, ax = plt.subplots(1, figsize=(18, 14))
+    fig, ax = plt.subplots(1, figsize=(18, 13))
     # remove the axis box around the vis
     ax.axis('off')
     
     # set the font for the visualization to Helvetica
     #title = 'Soybean Crop Yield (t/ha) '+str(year)
-    title = 'Soybean Crop Yield ( 0.1 Million Bushel) '+str(year)
+    title = 'Soybean Crop Yield (Million Bushel) '+str(year)
     ax.set_title(title, fontdict={'fontsize': '42', 'fontweight' : 'bold',})
     # Create colorbar legend
     fig = ax.get_figure()
     # add colorbar axes to the figure
     # This will take some iterating to get it where you want it [l,b,w,h] right
     # l:left, b:bottom, w:width, h:height; in normalized unit (0-1)
-    cbax = fig.add_axes([0.93, 0.20, 0.03, 0.30])   
+    cbax = fig.add_axes([0.90, 0.20, 0.03, 0.30])   
 
     title = 'Crop Yield '
     #cbax.set_title('Percentage of state households\nexperiencing food insecurity\n', **hfont, fontdict={'fontsize': '15', 'fontweight' : '0'})
@@ -182,12 +198,14 @@ def plot_per():
     gdf = gdf[gdf.STUSPS != 'AK']
     gdf = gdf[gdf.STUSPS != 'HI']
     
-    #print(gdf.STUSPS.unique())
-    #gdf1 = gdf.merge(df,left_on='STUSPS',right_on='AREA1')
+
     gdf1 = gdf.merge(df,left_on='STUSPS',right_on='AREA1')
     gdf1['NAME'] = gdf1.NAME.str.upper()
-    tbl = pd.read_csv('./tbl/state.tbl')
-    gdf1['Value'] = gdf1.apply(lambda row: row['Value'] if row['NAME'] in tbl['State'].values else np.nan,
+    states = ['ILLINOIS','IOWA','MINNESOTA','INDIANA','OHIO','MISSOURI','NEBRASKA','NORTH DAKOTA','SOUTH DAKOTA','ARKANSAS','KANSAS','MISSISSIPPI','WISCONSIN','KENTUCKY','MICHIGAN','TENNESSEE','NORTH CAROLINA','LOUISIANA']
+    gdf1 = gdf1[gdf1['NAME'].isin(states)]
+
+    tbl = pd.read_csv('./state.tbl')
+    gdf1['Value'] = gdf1.apply(lambda row: row['Value'] if row['NAME'] in tbl['NAME'].values else np.nan,
                                axis=1
                                )
 
@@ -201,10 +219,10 @@ def plot_per():
     # make a column for value_determined_color in gdf
     # set the range for the choropleth values with the upper bound the rounded up maximum value
     #vmin, vmax = gdf1.Value.min(), gdf1.Value.max() #math.ceil(gdf.pct_food_insecure.max())
-    vmin = 0 * 100
+    vmin = 20
     #vmax = 4.4 * 1000
     #vmin = 1.5 * 1000
-    vmax = 99
+    vmax = 79
     #Choose the continuous colorscale "YlOrBr" from https://matplotlib.org/stable/tutorials/colors/colormaps.html
     colormap = "YlOrBr"
     #gdf1 = gdf1.fillna(0)
@@ -218,7 +236,7 @@ def plot_per():
     
     
     # create figure and axes for Matplotlib
-    fig, ax = plt.subplots(1, figsize=(18, 14))
+    fig, ax = plt.subplots(1, figsize=(18, 13))
     # remove the axis box around the vis
     ax.axis('off')
     
@@ -301,12 +319,13 @@ if __name__ == '__main__':
     
     form = cgi.FieldStorage()
     
-    year=2024
+    year=2025
     date="2024-05-26"
     # GET requestの取得                                                                                                                                              
     if 'year' in form:
         year = form['year'].value
-    
+
+
     #content='PROG'
     content='YIELD'
     #content='per'

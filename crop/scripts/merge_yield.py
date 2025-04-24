@@ -6,7 +6,7 @@ import os
 
 
 f1 = sys.argv[1]
-f2 = "/usr/amoeba/pub/crop/data/yield_output.csv"
+f2 = "/usr/amoeba/pub/crop/data/yield_output.csv"# 2020-2024 収量
 
 df1 = pd.read_csv(f1)
 df1.date = pd.to_datetime(df1.date).dt.year

@@ -4,10 +4,12 @@ var chart3;
 
 function main(content,state,year){
 
+    updateStateSelect(content, state);
     var $firstDropdown = $('#firstDropdown');
     var $secondDropdown = $('#secondDropdown');
     $firstDropdown.empty();
     $secondDropdown.empty();
+
 
     // table読み込み
     var tblfile = './tbl/state.tbl';
@@ -34,6 +36,7 @@ function main(content,state,year){
     $('img').remove();
     $('table').remove();
 
+    
     if (content == 'YIELD'){
 	$('img').remove();
 	$('table').remove();
@@ -47,7 +50,7 @@ function main(content,state,year){
 	document.getElementById('wx-table').style.display = 'none';
 	document.getElementById('myChart').style.display = 'none';
 	document.getElementById('myChart2').style.display = 'none';
-	document.getElementById('myChart3').style.display = 'none';
+	document.getElementById('chart3').style.display = 'block';
 	//make map
 	
 	let selects = {
@@ -77,8 +80,6 @@ function main(content,state,year){
 	});
 	// Set csv & make tbl
 	readcsv(csvUrl,csvUrl2,tbl,newtbl,stage,state);
-	
-
 	$('#firstDropdown').change(function() {
 	    $('img').remove();
 	    $('table').remove();
@@ -131,7 +132,7 @@ function main(content,state,year){
 	document.getElementById('wx-table').style.display = 'none';
 	document.getElementById('myChart').style.display = 'none';
 	document.getElementById('myChart2').style.display = 'none';
-	document.getElementById('myChart3').style.display = 'none';
+	document.getElementById('chart3').style.display = 'none';
 	
 	let c = 0;
     
@@ -179,7 +180,7 @@ function main(content,state,year){
 	    '収穫済み':'HARVESTED',
 
 	}
-	let stage = "HARVESTED";
+	let stage = "EMERGED";
         $.each(selects, function(index, select) {
 
 	    let selected = '';
@@ -240,19 +241,32 @@ function main(content,state,year){
 	$('#year_select').hide()
 	$('#area').hide()
 	$('#downloadCsv').hide();
-	let s = state.replace(" ","");
+
+
+	if ( state == "sum"){
+	    state = "average";
+
+	}
+
+	let s;
+	if (typeof state === "string") {
+	    s = state.replace(" ","");
+	}else{
+	    s = state;
+	}
+	
 	var csvUrl = './data/'+state+'_WX_output.csv';
 	var csvUrl2 = './data/'+state+'_WX_lrf.csv';
 	var csvUrl3 = './data/'+state+'_WX_historical.csv';
 	var csvUrl4 = './data/'+s+'_WX_mrf.csv';
-	var csvUrl5 = './data/'+state+'_latest.csv';
+
 
 	document.getElementById('point-table').style.display = 'none';
 	document.getElementById('table-container').style.visibility = 'none';
 	document.getElementById('wx-table').style.display = 'block';
 	document.getElementById('myChart').style.display = 'block';
 	document.getElementById('myChart2').style.display = 'block';
-	document.getElementById('myChart3').style.display = 'block';
+	document.getElementById('chart3').style.display = 'none';
 
 	$.ajax({
 	    url: csvUrl,
@@ -267,16 +281,18 @@ function main(content,state,year){
 	}).done(function(data, textStatus, jqXHR){
             csv2 = $.csv.toArrays(data);
 	});
-
+	
 	addtable_wx(csv,csv2);
-
+	
 	$.ajax({
 	    url: csvUrl2,
             async : false,
 	}).done(function(data, textStatus, jqXHR){
            csv_lrf = $.csv.toArrays(data);
 	});
-
+	console.log(csv_lrf);
+	let  csv_lrf_uniq = removeDuplicateDates(csv_lrf);
+	console.log(csv_lrf_uniq);
 	$.ajax({
 	    url: csvUrl4,
             async : false,
@@ -284,21 +300,51 @@ function main(content,state,year){
             csv_mrf = $.csv.toArrays(data);
 	});
 
-	$.ajax({
-	    url: csvUrl5,
-            async : false,
-	}).done(function(data, textStatus, jqXHR){
-            csv_latest = $.csv.toArrays(data);
-	});
-	
-	addchart_wx(csv_lrf);
+
+
+
+	addchart_wx(csv_lrf_uniq);
 	addchart_wx_mrf(csv_mrf);
-	addchart_wx_latest(csv_latest);
+	//addchart_wx_latest(csv_latest);
     }
     
-    
+
 }
-				
+
+function updateStateSelect(content, state) {
+    const stateSelect = document.getElementById("state-select");
+    
+    if (!window._originalStateOptions) {
+	window._originalStateOptions = Array.from(stateSelect.options).map(opt => ({
+	    value: opt.value,
+	    text: opt.textContent
+	}));
+    }
+    
+    let filteredOptions = [];
+    
+    if (content === "YIELD") {
+	filteredOptions = window._originalStateOptions;
+    } else if (content === "WX") {
+	filteredOptions = window._originalStateOptions.filter(opt => opt.value !== "sum");
+    } else if (content === "PROG") {
+	filteredOptions = [];
+	}
+    
+    stateSelect.innerHTML = "";
+    
+    filteredOptions.forEach(opt => {
+	const option = document.createElement("option");
+	option.value = opt.value;
+	option.textContent = opt.text;
+	if (opt.value === state) option.selected = true;
+	stateSelect.appendChild(option);
+    });
+    
+    // div なしで select 自体を制御
+    stateSelect.style.display = (content === "PROG") ? "none" : "inline-block";
+}
+
 function readcsv(csvUrl,csvUrl2,tbl,newtbl,stage,state){
     document.getElementById('point-table').style.display = 'block';
     document.getElementById('table-container').style.visibility = 'block';
@@ -337,12 +383,12 @@ function readcsv(csvUrl,csvUrl2,tbl,newtbl,stage,state){
     if ( stage == "YIELD"){
 	csv.forEach(function(row){
 	    
-	    csv[c][1] = csv[c][1] * csv2[c][1] / 100000;
-	    csv[c][2] = csv[c][2] * csv2[c][2] / 100000;
-	    csv[c][3] = csv[c][3] * csv2[c][3] / 100000;
-	    csv[c][4] = csv[c][4] * csv2[c][4] / 100000;
-	    csv[c][5] = csv[c][5] * csv2[c][5] / 100000;
-	    csv[c][6] = csv[c][6] * csv2[c][6] / 100000;
+	    csv[c][1] = csv[c][1] * csv2[c][1] / 10000;
+	    csv[c][2] = csv[c][2] * csv2[c][2] / 10000;
+	    csv[c][3] = csv[c][3] * csv2[c][3] / 10000;
+	    csv[c][4] = csv[c][4] * csv2[c][4] / 10000;
+	    csv[c][5] = csv[c][5] * csv2[c][5] / 10000;
+	    csv[c][6] = csv[c][6] * csv2[c][6] / 10000;
 		    
 	    c = c+1;
 	});
@@ -388,19 +434,44 @@ function readcsv(csvUrl,csvUrl2,tbl,newtbl,stage,state){
 	
 
     csv.sort(function(a,b){return(b[6] - a[6]);});
-    console.log(state);
     
-    if ( stage  == "YIELD"){
-	headers = ['州','2024 収量予測(0.1M Bushels)','5年平均収量(0.1M Bushels)','2023年収量(0.1M Bushels)'];
-	addpoint(csv,state,newtbl,headers);
-    }else{
-	headers = ['州','2024 収量予測(Bushels/Acre)','5年平均収量(Bushels/Acre)','2023年収量(Bushels/Acre)'];
-	addpoint(csv,state,newtbl,headers);
+    
+    if (stage == "YIELD") {
+	headers = ['州', '2025 収量予測(M Bushels)', '5年平均収量(M Bushels)', '2024年収量(M Bushels)'];
+	
+	if (state == "average") {
+            addpoint(ave, state, newtbl, headers);
+	} else if (state == "sum") {
+            addpoint(sum, state, newtbl, headers);
+	} else {
+            addpoint(csv, state, newtbl, headers);
+	}
+
+    } else {
+	headers = ['州', '2025 収量予測(Bushels/Acre)', '5年平均収量(Bushels/Acre)', '2024年収量(Bushels/Acre)'];
+	
+	if (state == "average") {
+            addpoint(ave, state, newtbl, headers);
+	} else if (state == "sum") {
+            addpoint(sum, state, newtbl, headers);
+	} else {
+            addpoint(csv, state, newtbl, headers);
+	}
     }
     
-    headers = ['州','2019年','2020年','2021年','2022年','2023年','2024年(予測)'];
+	
+    headers = ['州','2020年','2021年','2022年','2023年','2024年','2025年(予測)'];
     addtable_crop(csv,headers,ave,sum,names,newtbl);
-    
+    	
+    var csvUrl5 = './data/'+state+'_latest.csv';
+
+    $.ajax({
+	url: csvUrl5,
+        async : false,
+    }).done(function(data, textStatus, jqXHR){
+        csv_latest = $.csv.toArrays(data);
+    });
+    addchart_wx_latest(csv_latest);
 
 
 }
@@ -419,6 +490,20 @@ function tableToCSV() {
 }
     
     
+// 重複を削除する関数
+// 同じ日付の行を削除する関数
+function removeDuplicateDates(array) {
+  const seenDates = new Set(); // 重複確認用のSet
+  return array.filter(row => {
+    const date = row[2]; // 
+    if (seenDates.has(date)) {
+      return false; // すでに見た日付なら除外
+    } else {
+      seenDates.add(date); // 初めての見た日付を追加
+      return true; // 残す
+    }
+  });
+}
 
 function downloadCSV(csv, filename) {
     var blob = new Blob([csv], { type: 'text/csv' });
@@ -446,10 +531,7 @@ function average(arr){
 function addpoint(csv,state,newtbl,headers){
     var table = '<table border="1">';
     table += '<thead><tr>';
-    //    console.log(csv);
-
-    //var headers = ['州','2024 収量予測(0.1M Bushel)','5年平均収量(0.1M Bushel)','2023年収量(0.1M Bushel)'];
-
+    console.log(csv);
     
     headers.forEach(function(header) {
         table += '<th>' + header + '</th>';
@@ -458,27 +540,43 @@ function addpoint(csv,state,newtbl,headers){
 
     // データをテーブルに追加
     table += '<tbody><tr>';
-    
-    var c = 0;
-    csv.forEach(function(row) {
-	console.log(row[0],state);
-	if ( row[0] == state){
-	    table +='<td>'+newtbl[state]+'</td>';
-	    //table +='<td>'+row[0]+'</td>';
-	    row = row.map(Number);
-	    table +='<td>'+Math.round(row[6]* 100)/100+'</td>';
-	    const mean = ( row[1]+ row[2] + row[3] + row[4]  + row[5])/5;
-	    table +='<td>'+Math.round(mean * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[5]  * 100)/100+'</td>';
-	    table +='</tr>'
-	}
-	c = c + 1;
-    });
-
+    if (state == "average"){
+	table +='<td>全州平均</td>';
+	//table +='<td>'+row[0]+'</td>';
+	table +='<td>'+Math.round(csv[6])+'</td>';
+	const mean = ( csv[1]+ csv[2] + csv[3] + csv[4]  + csv[5])/5;
+	table +='<td>'+Math.round(mean)+'</td>';
+	table +='<td>'+Math.round(csv[5])+'</td>';
+	table +='</tr>';
+	
+    }else if (state == "sum"){
+	table +='<td>全州合計</td>';
+	table +='<td>'+Math.round(csv[6])+'</td>';
+	const mean = ( csv[1]+ csv[2] + csv[3] + csv[4]  + csv[5])/5;
+	table +='<td>'+Math.round(mean)+'</td>';
+	table +='<td>'+Math.round(csv[5])+'</td>';
+	table +='</tr>';	
+    }else{
+	var c = 0;
+	csv.forEach(function(row) {
+	    if ( row[0] == state){
+		table +='<td>'+newtbl[state]+'</td>';
+		//table +='<td>'+row[0]+'</td>';
+		row = row.map(Number);
+		table +='<td>'+Math.round(row[6])+'</td>';
+		const mean = ( row[1]+ row[2] + row[3] + row[4]  + row[5])/5;
+		table +='<td>'+Math.round(mean)+'</td>';
+		table +='<td>'+Math.round(row[5])+'</td>';
+		table +='</tr>'
+	    }
+	    c = c + 1;
+	    
+	});
+    }
     table += '</tbody>';            
     table += '</table>';
     
-    // テーブルを表示
+	// テーブルを表示
     document.getElementById('point-table').innerHTML = table;
     
     
@@ -497,7 +595,6 @@ function addtable_crop(csv,headers,ave,sum,names,newtbl){
     headers.forEach(function(header) {
         table += '<th>' + header + '</th>';
     });
-    //[,'5年平均値','前年比','5年平均比'];
     table += '<th>5年平均値</th>';
     table += '<th>前年比</th>';
     table += '<th>5年平均比</th>';
@@ -506,9 +603,42 @@ function addtable_crop(csv,headers,ave,sum,names,newtbl){
 
 
     // データをテーブルに追加
-    table += '<tbody><tr>';
+    table += '<tbody>';
+
+    table +='<tr>';
+
+
+    
     var c = 0;
     console.log(newtbl);
+
+    table +='<td>'+sum[0]+'</td>';
+    table +='<td>'+Math.round(sum[1] )+'</td>';
+    table +='<td>'+Math.round(sum[2] )+'</td>';
+    table +='<td>'+Math.round(sum[3] )+'</td>';
+    table +='<td>'+Math.round(sum[4])+'</td>';
+    table +='<td>'+Math.round(sum[5] )+'</td>';
+    table +='<td>'+Math.round(sum[6] )+'</td>';
+    let mean = ( sum[1] + sum[2] + sum[3] + sum[4] + sum[5])/5;
+    table +='<td>'+Math.round(mean )+'</td>';
+    table +='<td>'+Math.round(sum[6] / sum[5]*100 )/100+'</td>';
+    table +='<td>'+Math.round(sum[6] /mean *100 )/100 +'</td>';
+    table +='</tr>'
+
+    table +='<td>'+ave[0]+'</td>';
+
+    table +='<td>'+Math.round(ave[1] )+'</td>';
+    table +='<td>'+Math.round(ave[2] )+'</td>';
+    table +='<td>'+Math.round(ave[3] )+'</td>';
+    table +='<td>'+Math.round(ave[4] )+'</td>';
+    table +='<td>'+Math.round(ave[5] )+'</td>';
+    table +='<td>'+Math.round(ave[6] )+'</td>';
+    mean = ( ave[1] + ave[2] + ave[3] + ave[4] + ave[5])/5;
+    table +='<td>'+Math.round(mean )+'</td>';
+    table +='<td>'+Math.round(ave[6] / ave[5]*100 )/100+'</td>';
+    table +='<td>'+Math.round(ave[6] /mean *100) /100+'</td>';
+    table +='</tr>'
+    
     csv.forEach(function(row) {
 	var flag = names.includes(row[0]);
 	
@@ -516,50 +646,23 @@ function addtable_crop(csv,headers,ave,sum,names,newtbl){
 
 	if (flag) {
 	    table +='<td>'+newtbl[row[0]]+'</td>';
-	    //table +='<td>'+row[0]+'</td>';
 	    row = row.map(Number);
 
-	    table +='<td>'+Math.round(row[1] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[2] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[3] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[4] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[5] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[6] * 100)/100+'</td>';
-	    const mean = ( row[1] + row[2] + row[3] + row[4] + row[5])/5;
-	    table +='<td>'+Math.round(mean * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[6]/row[5] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[6]/mean * 100)/100 +'</td>';
+	    table +='<td>'+Math.round(row[1] )+'</td>';
+	    table +='<td>'+Math.round(row[2] )+'</td>';
+	    table +='<td>'+Math.round(row[3])+'</td>';
+	    table +='<td>'+Math.round(row[4] )+'</td>';
+	    table +='<td>'+Math.round(row[5] )+'</td>';
+	    table +='<td>'+Math.round(row[6] )+'</td>';
+	    mean = ( row[1] + row[2] + row[3] + row[4] + row[5])/5;
+	    table +='<td>'+Math.round(mean)+'</td>';
+	    table +='<td>'+Math.round(row[6]/row[5]*100 )/100+'</td>';
+	    table +='<td>'+Math.round(row[6]/mean*100 )/100 +'</td>';
 	    table +='</tr>'
 	}
     });
 
-    table +='<td>'+sum[0]+'</td>';
 
-    table +='<td>'+Math.round(sum[1] * 100)/100+'</td>';
-    table +='<td>'+Math.round(sum[2] * 100)/100+'</td>';
-    table +='<td>'+Math.round(sum[3] * 100)/100+'</td>';
-    table +='<td>'+Math.round(sum[4] * 100)/100+'</td>';
-    table +='<td>'+Math.round(sum[5] * 100)/100+'</td>';
-    table +='<td>'+Math.round(sum[6] * 100)/100+'</td>';
-    let mean = ( sum[1] + sum[2] + sum[3] + sum[4] + sum[5])/5;
-    table +='<td>'+Math.round(mean * 100)/100+'</td>';
-    table +='<td>'+Math.round(sum[6] / sum[5] * 100)/100+'</td>';
-    table +='<td>'+Math.round(sum[6] /mean * 100)/100 +'</td>';
-    table +='</tr>'
-    
-    table +='<td>'+ave[0]+'</td>';
-
-    table +='<td>'+Math.round(ave[1] * 100)/100+'</td>';
-    table +='<td>'+Math.round(ave[2] * 100)/100+'</td>';
-    table +='<td>'+Math.round(ave[3] * 100)/100+'</td>';
-    table +='<td>'+Math.round(ave[4] * 100)/100+'</td>';
-    table +='<td>'+Math.round(ave[5] * 100)/100+'</td>';
-    table +='<td>'+Math.round(ave[6] * 100)/100+'</td>';
-    mean = ( ave[1] + ave[2] + ave[3] + ave[4] + ave[5])/5;
-    table +='<td>'+Math.round(mean * 100)/100+'</td>';
-    table +='<td>'+Math.round(ave[6] / ave[5] * 100)/100+'</td>';
-    table +='<td>'+Math.round(ave[6] /mean * 100)/100 +'</td>';
-    table +='</tr>'
     
     table += '</tbody>';            
     table += '</table>';
@@ -594,30 +697,30 @@ function addtable_prog(csv,ave,names,newtbl){
     // データをテーブルに追加
     table += '<tbody><tr>';
     var c = 0;
-
+    table +='<td>'+ave[0]+'</td>';
+    table +='<td>'+Math.round(ave[1])+'</td>';
+    table +='<td>'+Math.round(ave[2] )+'</td>';
+    table +='<td>'+Math.round(ave[3] )+'</td>';
+    table +='<td>'+Math.round(ave[4] )+'</td>';
+    table +='<td>'+Math.round(ave[5] )+'</td>';
+    table +='</tr>'
     csv.forEach(function(row) {
 	if (row[0] != "State"){
 	    table +='<td>'+newtbl[row[0]]+'</td>';
 	    //table +='<td>'+row[0]+'</td>';
 	    row = row.map(Number);
 
-	    table +='<td>'+Math.round(row[1] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[2] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[3] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[4] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[5] * 100)/100+'</td>';
+	    table +='<td>'+Math.round(row[1] )+'</td>';
+	    table +='<td>'+Math.round(row[2] )+'</td>';
+	    table +='<td>'+Math.round(row[3] )+'</td>';
+	    table +='<td>'+Math.round(row[4] )+'</td>';
+	    table +='<td>'+Math.round(row[5] )+'</td>';
 	    table +='</tr>'	    
 	}
 	c = c+1;
     });
 
-    table +='<td>'+ave[0]+'</td>';
-    table +='<td>'+Math.round(ave[1] * 100)/100+'</td>';
-    table +='<td>'+Math.round(ave[2] * 100)/100+'</td>';
-    table +='<td>'+Math.round(ave[3] * 100)/100+'</td>';
-    table +='<td>'+Math.round(ave[4] * 100)/100+'</td>';
-    table +='<td>'+Math.round(ave[5] * 100)/100+'</td>';
-    table +='</tr>'
+
     table += '</tbody>';            
     table += '</table>';
     
@@ -630,50 +733,81 @@ function addtable_prog(csv,ave,names,newtbl){
 
 function addtable_wx(csv,csv2){
 
-
+    console.log(csv);
     var table = '<table border="1">';
-    table += '<thead><tr>';
+    //table += '<thead>';
 
-    
+    table += '<thead><tr>';
+    table += '<th rowspan="2">Month</th>';
+    table += '<th colspan="5">月最高気温 [℃]</th>';
+    table += '<th colspan="5">月最低気温 [℃]</th>';
+    table += '<th colspan="5">月平均気温 [℃]</th>';
+    table += '<th colspan="5">月降水量 [mm]</th>';
+    table += '</tr>';
     // ヘッダーをテーブルに追加
     data = csv.data;
-
-
-
-    var headers = ['Month',
-		   '2024 月最大気温[℃]','2024 月最低気温[℃]','2024 月平均気温[℃]','2024 月降水量[mm]',
-		   '2023 月最大気温[℃]','2023 月最低気温[℃]','2024 月平均気温[℃]','2023 月降水量[mm]',
-		   '5年平均 月最高気温[℃]','5年平均 月最低気温[℃]','5年平均 月平均気温[℃]','5年平均 月降水量[mm]']
-
     
+    var headers = [
+	'2024年','2025年','5年平均','前年差','平年差',
+	'2024年','2025年','5年平均','前年差','平年差',
+	'2024年','2025年','5年平均','前年差','平年差',
+	'2024年','2025年','5年平均','前年比','平年比']
+	
+    //var headers = ['Month',
+    //'2024 月最高気温[℃]','2025 月最高気[℃]','5年平均 月最高気温[℃]',
+    //'2024 月最低気温[℃]','2025 月最低気温[℃]','5年平均 月最低気温[℃]',
+    //'2024 月平均気温[℃]','2025 月平均気温[℃]','5年平均 月平均気温[℃]',
+    //		   '2024 月降水量[mm]','2025 月降水量[mm]','5年平均 月降水量[mm]']
+
+    //table += '<tr><th colspan="4">月</th>';
+    table += '<tr>';
     headers.forEach(function(header) {
         table += '<th>' + header + '</th>';
     });
     table += '</tr></thead>';
 
-
-    
+    // Month  2024 TMAX  2025 TMAX  2024 TMIN  2025 TMIN  2024 PRCP  2025 PRCP  2024 TAVG  2025 TAVG
     // データをテーブルに追加
-    table += '<tbody><tr>';
+    table += '<tbody>';
+    table += '<tr>';
     let c = 0;
+    console.log(csv);
     csv.forEach(function(row) {
 	if (row[0] != 'Month'){
 	    table +='<td>'+row[0]+'</td>';
 	    row = row.map(Number);
-
-	    table +='<td>'+Math.round(row[2] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[4] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[8] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[6] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[1] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[3] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[7] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(row[5] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(csv2[c+1][0] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(csv2[c+1][1] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(csv2[c+1][3] * 100)/100+'</td>';
-	    table +='<td>'+Math.round(csv2[c+1][2] * 100)/100+'</td>';
-	    
+	    //最高気温
+	    table +='<td>'+Math.round(row[1] *10)/10+'</td>';
+	    table +='<td>'+Math.round(row[2] *10)/10+'</td>';
+	    table +='<td>'+Math.round(row[3] *10)/10+'</td>';
+	    var pre_temp = row[2] - row[1];
+	    var anm_diff = row[2] - row[3];
+	    table +='<td>'+Math.round(pre_temp *10)/10+'</td>';
+	    table +='<td>'+Math.round(anm_diff *10)/10+'</td>';
+	    //最低気温
+	    table +='<td>'+Math.round(row[4] *10)/10+'</td>';
+	    table +='<td>'+Math.round(row[5] *10)/10+'</td>';
+	    table +='<td>'+Math.round(row[6] *10)/10+'</td>';
+	    pre_temp = row[5] - row[4];
+	    anm_diff = row[5] - row[6];
+	    table +='<td>'+Math.round(pre_temp *10)/10+'</td>';
+	    table +='<td>'+Math.round(anm_diff *10)/10+'</td>';
+	    //平均気温
+	    table +='<td>'+Math.round(row[10] *10)/10+'</td>';
+	    table +='<td>'+Math.round(row[11] *10)/10+'</td>';
+	    table +='<td>'+Math.round(row[12] *10)/10+'</td>';
+	    pre_temp = row[11] - row[10];
+	    anm_diff = row[11] - row[12];
+	    table +='<td>'+Math.round(pre_temp *10)/10+'</td>';
+	    table +='<td>'+Math.round(anm_diff *10)/10+'</td>';
+	    //降水
+	    table +='<td>'+Math.round(row[7])+'</td>';
+	    table +='<td>'+Math.round(row[8] )+'</td>';
+	    table +='<td>'+Math.round(row[9])+'</td>';
+	    var pre_prc = row[8]/row[7];
+	    anm_diff = row[8]/row[9];
+	    table +='<td>'+Math.round(pre_prc *100)/100+'</td>';
+	    table +='<td>'+Math.round(anm_diff *100)/100+'</td>';	    	    
 	    table +='</tr>'
 	    c = c+1;
 	}
@@ -683,7 +817,9 @@ function addtable_wx(csv,csv2){
     table += '</table>';
     
     // テーブルを表示
-    document.getElementById('wx-table').innerHTML = table;
+    var title = "<h3>気象実績</h3>";
+
+    document.getElementById('wx-table').innerHTML = title+table;
 }
 
 function addissutime(){
@@ -762,7 +898,7 @@ function addchart_wx_latest(csv){
 		    type: "linear", 
 		    position: "left",
 		    ticks: {
-			min:0,
+			//min:800,
 		    }
 		}],
 	    },
@@ -820,13 +956,13 @@ function addchart_wx(csv){
 		label: "平年降水量",
 		data: prcp_nrm,
 		borderColor: "rgb(150, 150,150)",
-		backgroundColor: "rgba(200, 200, 200, 0.4)",
+		backgroundColor: "rgba(170, 170, 170, 0.4)",
 		yAxisID: "y-axis-1",// 追加
 	    },{
 		label: "前年降水量",
 		data: prcp_prv,
 		borderColor: "rgb(225, 225,225)",
-		backgroundColor: "rgba(200, 200, 200, 0.4)",
+		backgroundColor: "rgba(220, 220, 220, 0.4)",
 		yAxisID: "y-axis-1",// 追加
 
 	    },{
@@ -883,6 +1019,13 @@ function addchart_wx(csv){
 	    }]
 	},
 	options: {
+	    title: {
+		display: true,
+		text: '６ヶ月先までの気象予測',
+		font: {
+		    size: 20
+		}
+	    },
 	    scales:{
 		xAxes:[{
 		    scaleLabel:{
@@ -988,6 +1131,13 @@ function addchart_wx_mrf(csv){
 	    }]
 	},
 	options: {
+	    title: {
+		display: true,
+		text: '2週間先までの予測',
+		font: {
+		    size: 20
+		}
+	    },
 	    scales:{
 		xAxes:[{
 		    scaleLabel:{
@@ -1129,5 +1279,42 @@ function init(){
         let filename = datestr+'_'+name+'_data.csv';
         downloadCSV(csv, filename);
     });
-				       
+
+    function setupYAxisControlForChart3() {
+	const minSlider = document.getElementById("chart3-ymin");
+	const maxSlider = document.getElementById("chart3-ymax");
+	const minDisplay = document.getElementById("chart3-ymin-val");
+	const maxDisplay = document.getElementById("chart3-ymax-val");
+
+	function update() {
+	    const min = parseFloat(minSlider.value);
+	    const max = parseFloat(maxSlider.value);
+	    
+	    minDisplay.textContent = min || "-";
+	    maxDisplay.textContent = max || "-";
+	    
+	    if (window.chart3) {
+		window.chart3.options.scales.yAxes[0].ticks.min = isNaN(min) ? undefined : min;
+		window.chart3.options.scales.yAxes[0].ticks.max = isNaN(max) ? undefined : max;
+		window.chart3.update();
+	    }
+	}
+
+	minSlider.addEventListener("input", update);
+	maxSlider.addEventListener("input", update);
+	
+	document.getElementById("chart3-yaxis-reset").addEventListener("click", () => {
+	    minSlider.value = "";
+	    maxSlider.value = "";
+	    minDisplay.textContent = "-";
+	    maxDisplay.textContent = "-";
+	    
+	    if (window.chart3) {
+		window.chart3.options.scales.yAxes[0].ticks.min = undefined;
+		window.chart3.options.scales.yAxes[0].ticks.max = undefined;
+		window.chart3.update();
+	    }
+	});
+    }
+    setupYAxisControlForChart3();
 }

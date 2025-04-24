@@ -6,6 +6,34 @@ import sys
 import os
 import numpy as np
 
+
+def state_mean():
+    states = ['ILLINOIS','IOWA','MINNESOTA','INDIANA','OHIO','MISSOURI','NEBRASKA','NORTH DAKOTA','SOUTH DAKOTA','ARKANSAS','KANSAS','MISSISSIPPI','WISCONSIN','KENTUCKY','MICHIGAN','TENNESSEE','NORTH CAROLINA','LOUISIANA']
+    outdir = "/usr/amoeba/pub/crop/data"
+    dfs = []
+    for state in states:
+        outfile = outdir+"/"+state+"_WX_lrf.csv"
+        df = pd.read_csv(outfile)
+        print(df)
+        dfs.append(df)
+    df = pd.concat(dfs)
+    #State,AREA1,date,TAVG_x,TAVG_NORYR,TMAX,TMAX_NORYR,TMIN,TMIN_NORYR,PRCP_x,PRCP_NORYR,WEEK_NO,DATE,MAX,MIN,PRCP_y,TAVG_y
+    df = df.groupby(['date']).mean(numeric_only=True).reset_index()
+    print(df)
+
+    df['State'] = "Average"
+    df['Area'] = "AVG"
+    df['DATE'] = df['date']
+    df = df[['State','Area','date','TAVG_x',
+             'TAVG_NORYR','TMAX','TMAX_NORYR',
+             'TMIN','TMIN_NORYR','PRCP_x','PRCP_NORYR','WEEK_NO','DATE','MAX','MIN',
+             'PRCP_y','TAVG_y']]
+
+    state = 'average'
+    outdir = "/usr/amoeba/pub/crop/data"
+    outfile = outdir+"/"+state+"_WX_lrf.csv"
+    df.to_csv(outfile,index=False)
+    
 def dump(f):
     param = {}
     
@@ -70,21 +98,25 @@ def dump(f):
         
         #print(df)
         
-        # Read 2023 obs data
-        f = '/usr/amoeba/pub/crop/data/gosd/'+area1+'_2023_obs_weekly.csv'
+        # Read 2024 obs data
+        f = '/usr/amoeba/pub/crop/data/gosd/'+area1+'_2024_obs_weekly.csv'
         d = pd.read_csv(f)
+        print(d)
+
+        
         #df.index = pd.to_datetime(df['DATE'])
         d = d.rename(columns={'State':'AREA1'})
         d['DATE'] = pd.to_datetime(d['DATE'])
         df['date'] = pd.to_datetime(df['date'])
-        df['WEEK_NO'] = df['date'].dt.isocalendar().week +1
-        d['WEEK_NO'] = d['DATE'].dt.isocalendar().week
+        df['WEEK_NO'] = df['date'].dt.isocalendar().week 
         print(df)
-        print(d)
+        d['WEEK_NO'] = d['DATE'].dt.isocalendar().week
+
         d = pd.merge(df,d,on=['WEEK_NO','AREA1'])
+        print(d)
 
         #d = d.drop('WEEK_NO',axis=1)
-
+        
         # output csv
         outdir = "/usr/amoeba/pub/crop/data"
         outfile = outdir+"/"+state+"_WX_lrf.csv"
@@ -100,3 +132,4 @@ def dump(f):
 
 f= sys.argv[1]
 dump(f)
+state_mean()

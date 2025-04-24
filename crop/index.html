@@ -49,6 +49,7 @@ table {
  text-align: center;
  border-collapse: collapse;
  width:100%;
+ margin-bottom: 20px; /* キャンバスとの余白を確保 */
 }
 th {
     padding: 10px;
@@ -62,12 +63,21 @@ td {
 
  border: solid 1px #000;
 }
+
 td:first-child {
     background: #008000;
 
     color : #fff;
     font-weight: bold;
 }
+
+/* テーブルとキャンバスのレイアウト調整 */
+.box-container {
+  display: flex; /* 子要素を横並びまたは縦並びに */
+  flex-direction: column; /* 縦方向に配置 */
+  gap: 10px; /* 子要素間に余白を追加 */
+}
+
 .menu{
     position: relative;
     font-weight: bold;
@@ -87,90 +97,116 @@ td:first-child {
     top:150px;
     left:0px;
     width:1200px;
-
+    height:800px;
   
 }
 .box5{
-    position: absolute;
+    width: 90%;
     padding: 10px;
-    top:150px;
-    left: 1250px;
-    #right:0px;
-    width:600px;
-    height:600px;
+    position: relative;
+    width:1200px;
+    height:800px;
 }
 
-.canvas{
-  width: 50%;
-  height: 200px;
-  padding: 10px;
-  position: relative;
-}
 .box3{
 
-  width: 90%;
+  width: 80%;
   padding: 10px;
   position: relative;
 }
 .box4{
 
-  width: 90%;
+  width: 80%;
   padding: 10px;  
   position: relative;
 }
+
+.box6 {
+  width: 600px;
+  height: 700px;
+  padding: 10px;
+  position: relative; /* テーブルと重ならないよう調整 */
+  margin-top: 200px;
+}
+.box7 {
+  width: 600px;
+  height: 700px;
+  padding: 10px;
+  position: relative; /* テーブルと重ならないよう調整 */
+  margin-top: 0px;
+}
   </style>
 <body onload="init();">
-  <h3>収量,生育状況,気象予測</h3>
-    <select name="content">
-    <option selected value='YIELD'>収量</option>
+  <h3>大豆の収量予測サービス</h3>
+
+    <select id="content-select" name="content">
+      <option selected value='YIELD'>収量</option>
     <option value='PROG'>生育状況</option>
     <option value='WX'>気象予測</option>
-  </select>
-  州:<select id="state_select" name="state">
-    <option selected value=ARKANSAS>アーカンソー</option>
-    <option value="ILLINOIS">イリノイ</option>
-    <option value="INDIANA">インディアナ</option>
-    <option value="IOWA">アイオワ</option>
-    <option value="KANSAS">カンザス</option>
-    <option value="KENTUCKY">ケンタッキー</option>
-    <option value="LOUISIANA">ルイジアナ</option>
-    <option value="MICHIGAN">ミシガン</option>
-    <option value="MINNESOTA">ミネソタ</option>
-    <option value="MISSISSIPPI">ミシシッピ</option>
-    <option value="MISSOURI">ミズーリ</option>
-    <option value="NEBRASKA">ネブラスカ</option>
-    <option value="NORTH CAROLINA">ノースカロライナ</option>
-    <option value="NORTH DAKOTA">ノースダコタ</option>
-    <option value="OHIO">オハイオ</option>
-    <option value="SOUTH DAKOTA">サウスダコタ</option>
-    <option value="TENNESSEE">テネシー</option>
-    <option value="WISCONSIN">ウィスコンシン</option>
-  </select>
+    </select>
+    州:
+      <select id="state-select" name="state">
+	<option selected value="sum">全州合計</option>
+	<option value="average">全州平均</option>
+	<option value="ARKANSAS">アーカンソー</option>
+	<option value="ILLINOIS">イリノイ</option>
+	<option value="INDIANA">インディアナ</option>
+	<option value="IOWA">アイオワ</option>
+	<option value="KANSAS">カンザス</option>
+	<option value="KENTUCKY">ケンタッキー</option>
+	<option value="LOUISIANA">ルイジアナ</option>
+	<option value="MICHIGAN">ミシガン</option>
+	<option value="MINNESOTA">ミネソタ</option>
+	<option value="MISSISSIPPI">ミシシッピ</option>
+	<option value="MISSOURI">ミズーリ</option>
+	<option value="NEBRASKA">ネブラスカ</option>
+	<option value="NORTH CAROLINA">ノースカロライナ</option>
+	<option value="NORTH DAKOTA">ノースダコタ</option>
+	<option value="OHIO">オハイオ</option>
+	<option value="SOUTH DAKOTA">サウスダコタ</option>
+	<option value="TENNESSEE">テネシー</option>
+	<option value="WISCONSIN">ウィスコンシン</option>
+      </select>
+
 
  年:<select id="year_select" name="year">
-    <option selected value=2024>2024</option>
+    <option selected value=2025>2025</option>
   </select>
-  <a id='area' href="./field_acre_2019_2024.html">Planted Area(2019-2024)</a>
+   <a id='area' href="./field_acre_2019_2024.html">Planted Area(2019-2024)</a>
   <p>
     <select id="firstDropdown" name='stage_crop' style="display:none;"></select>
     <!-- 動的にオプションが追加される -->
-    <select id="secondDropdown" name='stage_crop' style="display:none;"></select>
-    
+    <select id="secondDropdown" name='stage_crop' style="display:none;"></select>    
     <div id='issue time' class="menu">
     </div>
     <div id='state' class="menu">
 	</div>
-  <p>
-    
+  <p>    
     <div id='map' class="box1"> </div>
     <div id='wx-table' class="box2"></div>
-    <div id='chart3' class="box5"><canvas id="myChart3"></canvas></div>
-    <canvas id="myChart"></canvas>
-    <canvas id="myChart2"></canvas>
+    <canvas  id="myChart" class="box6" ></canvas>
+    <canvas  id="myChart2" class="box7"></canvas>
     <div id='point-table' class="box4"></div>
     <div id="table-container" class="box3"></div>
     <button id="downloadCsv" class="download">CSV ダウンロード</button>
-      
+
+    <div id='chart3' class="box5">
+      <div id="chart3-yaxis-control" style="margin-top: 1em;">
+	<label>Y軸最小:
+	  <input type="range" id="chart3-ymin" min="0" max="40000" step="100" value="0">
+	  <span id="chart3-ymin-val">0</span>
+	</label>
+	<br>
+	<label>Y軸最大:
+	  <input type="range" id="chart3-ymax" min="100" max="50000" step="100" value="500">
+	  <span id="chart3-ymax-val">500</span>
+	</label>
+	<br>
+	<button id="chart3-yaxis-reset">Reset</button>
+      </div>
+      <canvas id="myChart3"></canvas>
+    </div>
+  
     
 </body>
 </html>

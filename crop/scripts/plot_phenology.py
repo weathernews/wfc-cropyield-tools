@@ -69,6 +69,11 @@ def plot_prog(stage):
 
     gdf['NAME'] = gdf.NAME.str.upper()
     gdf1 = gdf.merge(df,left_on='NAME',right_on='State')
+    states = ['ILLINOIS','IOWA','MINNESOTA','INDIANA','OHIO','MISSOURI','NEBRASKA','NORTH DAKOTA','SOUTH DAKOTA','ARKANSAS','KANSAS','MISSISSIPPI','WISCONSIN','KENTUCKY','MICHIGAN','TENNESSEE','NORTH CAROLINA','LOUISIANA']
+    print(gdf1)
+
+    gdf1 = gdf1[gdf1['NAME'].isin(states)]
+    print(gdf1)
 
 
     #printfg(gdf.STUSPS.unique())
@@ -102,7 +107,7 @@ def plot_prog(stage):
     visframe = gdf1.to_crs({'init':'epsg:2163'})
     
     # create figure and axes for Matplotlib
-    fig, ax = plt.subplots(1, figsize=(18, 14))
+    fig, ax = plt.subplots(1, figsize=(18, 13))
     # remove the axis box around the vis
     ax.axis('off')
     # set the font for the visualization to Helvetica
@@ -212,7 +217,7 @@ def plot_yeild():
     
     
     # create figure and axes for Matplotlib
-    fig, ax = plt.subplots(1, figsize=(18, 14))
+    fig, ax = plt.subplots(1, figsize=(18, 13))
     # remove the axis box around the vis
     ax.axis('off')
     

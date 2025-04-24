@@ -5,7 +5,26 @@ import RU
 import sys
 import os
 import numpy as np
+def state_mean():
+    states = ['ILLINOIS','IOWA','MINNESOTA','INDIANA','OHIO','MISSOURI','NEBRASKA','NORTH DAKOTA','SOUTH DAKOTA','ARKANSAS','KANSAS','MISSISSIPPI','WISCONSIN','KENTUCKY','MICHIGAN','TENNESSEE','NORTH CAROLINA','LOUISIANA']
+    outdir = "/usr/amoeba/pub/crop/data"
+    dfs = []
+    for state in states:
+        state = state.replace(" ","")
+        outfile = outdir+"/"+state+"_WX_mrf.csv"
+        df = pd.read_csv(outfile)
 
+        dfs.append(df)
+    df = pd.concat(dfs)
+
+    #dateitme       TMAX       TMIN       PRCP
+    df = df.groupby(['datetime']).mean(numeric_only=True).reset_index()
+    print(df)
+    state = 'average'
+    outdir = "/usr/amoeba/pub/crop/data"
+    outfile = outdir+"/"+state+"_WX_mrf.csv"
+    df.to_csv(outfile,index=False)
+    
 def dump(f):
     param = {}
     
@@ -44,7 +63,7 @@ def dump(f):
             tmins.append(fcas_data_ref['AIRTMP_MIN'])
             prcps.append(fcas_data_ref['PRCRIN'] )
         #datetime,TMAX,TMIN,PRCP,State
-        df = pd.DataFrame({"dateitme":dates, "TMAX":tmaxs,"TMIN":tmins,"PRCP":prcps})
+        df = pd.DataFrame({"datetime":dates, "TMAX":tmaxs,"TMIN":tmins,"PRCP":prcps})
 
 
         
@@ -59,3 +78,4 @@ def dump(f):
 if __name__ == "__main__":
     f = sys.argv[1]
     dump(f)
+    state_mean()
