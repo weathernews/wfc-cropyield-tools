@@ -4,7 +4,7 @@ import pandas as pd
 import sys
 import xml.etree.ElementTree as ET
 from datetime import datetime
-
+import os
 
 
 def state_mean(area_df):
@@ -93,7 +93,7 @@ if len(sys.argv) > 2:
         df2 = pd.read_csv(f2)
         df2['DATE'] = pd.to_datetime(df2.DATE)
         df2.set_index('DATE',inplace=True)
-        df2 = df2["2024-04-31":"2025-12-31"]
+        df2 = df2["2025-03-31":"2025-12-31"]
         df2 = df2.reset_index()
         df2['Year'] = df2.DATE.dt.year
         df2['Month'] = df2.DATE.dt.month
@@ -103,6 +103,7 @@ if len(sys.argv) > 2:
 else:
     df = df1
     
+
 
 
 

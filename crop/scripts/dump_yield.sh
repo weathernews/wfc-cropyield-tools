@@ -20,5 +20,9 @@ date=`basename $outfile _yield.csv`
 
 python3.7 add_latest.py $OUTDIR/YIELD_output.csv $OUTDIR/latest.csv $date
 echo python3.7 add_latest.py $OUTDIR/YIELD_output.csv $OUTDIR/latest.csv $date
+
+# Plot Png
+python3.7 plot_yield.py $date
+
 echo "Done. dump csv"
 exit

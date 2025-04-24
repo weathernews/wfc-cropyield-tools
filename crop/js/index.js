@@ -66,18 +66,18 @@ function main(content,state,year){
         $firstDropdown.show();
 
 	let stage = $('select[name="stage_crop"] option:selected').val();
-	let url = './plot_us.cgi?year='+year+'&content='+stage;
+
+	let url = './png/'+stage+'_usa.png';
 	
 	$(document).ready(function() {
 	    $('img').remove();
-	    
-
 	    var image = new Image();
 	    image.src = url;
 	    image.width = 700;
 	    $('#map').append(image);
 
 	});
+
 	// Set csv & make tbl
 	readcsv(csvUrl,csvUrl2,tbl,newtbl,stage,state);
 	$('#firstDropdown').change(function() {
@@ -86,15 +86,19 @@ function main(content,state,year){
 
 	    // 選択されたstageを取得
 	    var stage = $(this).val();
+
+	    url = './png/'+stage+'_usa.png';
 	    
-	    const url = './plot_us.cgi?year='+year+'&content='+stage;
 	    $(document).ready(function() {
 		$('img').remove();
 		var image = new Image();
 		image.src = url;
 		image.width = 700;
 		$('#map').append(image);
+		
 	    });
+	    
+
 	    
 	    // Set csv & make tbl
 
@@ -898,7 +902,13 @@ function addchart_wx_latest(csv){
 		    type: "linear", 
 		    position: "left",
 		    ticks: {
-			//min:800,
+			// 整数のみ表示
+			stepSize: 1000,
+			callback: function(value) {
+			    if (Number.isInteger(value)) {
+				return value;
+			    }
+			}
 		    }
 		}],
 	    },
