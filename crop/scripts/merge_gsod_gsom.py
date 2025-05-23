@@ -87,24 +87,20 @@ df1['Month'] = df1.DATE.dt.month
 
 df1 = df1[['DATE','AREA','TAVG','TMIN','TMAX','PRCP','Year','Month']]
 
+df = df1  # まず df1 をデフォルトとして代入
+
 if len(sys.argv) > 2:
     f2 = sys.argv[2]
     if os.path.exists(f2):
         df2 = pd.read_csv(f2)
         df2['DATE'] = pd.to_datetime(df2.DATE)
-        df2.set_index('DATE',inplace=True)
-        df2 = df2["2025-03-31":"2025-12-31"]
-        df2 = df2.reset_index()
+        df2.set_index('DATE', inplace=True)
+        df2 = df2["2025-03-31":"2025-12-31"].reset_index()
         df2['Year'] = df2.DATE.dt.year
         df2['Month'] = df2.DATE.dt.month
-        df2 = df2.rename(columns={'State':'AREA','MIN':'TMIN','MAX':'TMAX'})
+        df2 = df2.rename(columns={'State': 'AREA', 'MIN': 'TMIN', 'MAX': 'TMAX'})
         
-        df = pd.concat([df1,df2])
-else:
-    df = df1
-    
-
-
+        df = pd.concat([df1, df2])
 
 
 tbl = tbl[tbl['AREA1'] != 'AK']
@@ -114,7 +110,7 @@ wx = df
 current_month = datetime.now().month
 
 #月から先月までのリストを作成
-months_list = list(range(1, 13 ))
+months_list = list(range(1, current_month ))
 f_df = wx[wx['Month'].isin(months_list)]
 f_df.reset_index(inplace=True)
 f_df = pd.merge(f_df,tbl,left_on='AREA',right_on='AREA1')

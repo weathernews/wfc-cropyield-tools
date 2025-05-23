@@ -22,12 +22,22 @@ def main():
     df.MAX = (df.MAX - 32) * 5/9
     df.MIN = (df.MIN - 32) * 5/9
     df.PRCP = df.PRCP * 25.4
-    
-    df['State'] = df.NAME.str.split().str[-2]
+
+    # 州を抽出（例： "Phoenix, AZ US" → "AZ"）
+    df['State'] = df.NAME.str.extract(r',\s*([A-Z]{2})\s')
+    # 日付を datetime に変換（必要に応じて）
+    df['DATE'] = pd.to_datetime(df['DATE'])
     print(df.State.unique())
-    df = df.groupby(['State','DATE']).mean(numeric_only=True).reset_index()
+    # 数値列だけ抽出
+    numeric_cols = df.select_dtypes(include='number').columns
+    
+    df = df.groupby(['State', 'DATE'])[numeric_cols].mean().reset_index()
+    #max_prcp = df.groupby(['State', 'DATE'])['PRCP'].max()
+    #df['PRCP'] = max_prcp
+    
+    #df = df.groupby(['State','DATE']).mean(numeric_only=True).reset_index()
     #PRCP = df.groupby(['State','DATE']).max(numeric_only=True).reset_index()['PRCP']
-    print(df.PRCP.max())
+    #print(df.PRCP.max())
 
     #df['PRCP'] = PRCP
     df = df.dropna()
@@ -41,8 +51,9 @@ def main():
         df1 = df[df.State == state]
         df1['TAVG'] = (df1['MAX'] + df1['MIN']) / 2
         print(df1)
-        df2 = df1.resample('M').mean().reset_index()
-        PRCP = df1.resample('M').sum().reset_index()['PRCP']
+
+        df2 = df1.resample('M').mean(numeric_only=True).reset_index()
+        PRCP = df1.resample('M').sum(numeric_only=True).reset_index()['PRCP']
         df2['State'] = state
         df2['PRCP'] = PRCP
 
@@ -52,7 +63,7 @@ def main():
         dfs.append(df2)
     df = pd.concat(dfs)
     print(df)
-    df.to_csv(f'../data/gsod/2024_obs_monthly.csv', index=False)
+    df.to_csv(f'../data/gsod/2025_obs_monthly.csv', index=False)
 
 if __name__ == '__main__':
     main()
