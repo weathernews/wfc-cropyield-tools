@@ -943,9 +943,9 @@ function addchart_wx(csv){
 	tmin.push(row[7]);
 	tmin_nrm.push(row[8]);
 	tmin_prv.push(row[14]);
-	prcp.push(row[9]);
-	prcp_nrm.push(row[10]);
-	prcp_prv.push(row[15]);
+	prcp.push(row[9]/10);
+	prcp_nrm.push(row[10]/10);
+	prcp_prv.push(row[15]/10);
     });
     var container = $('.canvas-container');
     var ctx = document.getElementById('myChart').getContext('2d');
@@ -1056,9 +1056,9 @@ function addchart_wx(csv){
 		    type: "linear", 
 		    position: "left",
 		    ticks: {
-			max: 100,
+			max: 30,
 			min: 0,
-			stepSize: 25
+			stepSize: 5
 		    },
 		}, {
 		    scaleLabel:{
@@ -1103,7 +1103,7 @@ function addchart_wx_mrf(csv){
 	dates.push(row[0]);
 	tmax.push(row[1]);
 	tmin.push(row[2]);
-	prcp.push(row[3]);
+	prcp.push(row[3]/10);
     });
     var container = $('.canvas-container');
     var ctx2 = document.getElementById('myChart2').getContext('2d');
@@ -1168,9 +1168,9 @@ function addchart_wx_mrf(csv){
 		    type: "linear", 
 		    position: "left",
 		    ticks: {
-			max: 100,
+			max: 30,
 			min: 0,
-			stepSize: 25
+			stepSize: 5
 		    },
 		}, {
 		    scaleLabel:{
