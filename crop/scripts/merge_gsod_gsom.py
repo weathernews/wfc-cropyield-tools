@@ -88,14 +88,23 @@ df1['Month'] = df1.DATE.dt.month
 df1 = df1[['DATE','AREA','TAVG','TMIN','TMAX','PRCP','Year','Month']]
 
 df = df1  # まず df1 をデフォルトとして代入
+# 現在時刻を取得
+now = datetime.now()
+if now.month == 1 :
+    prev_month_start = datetime(now.year - 1, 11, 1)
+elif now.month == 2:
+    prev_month_start = datetime(now.year - 1, 12, 1)
+else:
+    prev_month_start = datetime(now.year, now.month - 2, 1)
 
+prev_month_str = prev_month_start.strftime('%Y-%m-%d')
 if len(sys.argv) > 2:
     f2 = sys.argv[2]
     if os.path.exists(f2):
         df2 = pd.read_csv(f2)
         df2['DATE'] = pd.to_datetime(df2.DATE)
         df2.set_index('DATE', inplace=True)
-        df2 = df2["2025-03-31":"2025-12-31"].reset_index()
+        df2 = df2[prev_month_str:"2025-12-31"].reset_index()
         df2['Year'] = df2.DATE.dt.year
         df2['Month'] = df2.DATE.dt.month
         df2 = df2.rename(columns={'State': 'AREA', 'MIN': 'TMIN', 'MAX': 'TMAX'})
