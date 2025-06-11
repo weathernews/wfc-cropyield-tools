@@ -99,7 +99,7 @@ def dump(f):
         #print(df)
         
         # Read 2024 obs data
-        f = '/usr/amoeba/pub/crop/data/gosd/'+area1+'_2024_obs_weekly.csv'
+        f = '/usr/amoeba/pub/crop/data/gsod/'+area1+'_2024_obs_weekly.csv'
         d = pd.read_csv(f)
         print(d)
 
