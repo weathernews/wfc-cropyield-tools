@@ -30,30 +30,28 @@ def main():
     print(df.State.unique())
     # 数値列だけ抽出
     numeric_cols = df.select_dtypes(include='number').columns
-    
-    df = df.groupby(['State', 'DATE'])[numeric_cols].mean().reset_index()
-    #max_prcp = df.groupby(['State', 'DATE'])['PRCP'].max()
-    #df['PRCP'] = max_prcp
-    
-    #df = df.groupby(['State','DATE']).mean(numeric_only=True).reset_index()
-    #PRCP = df.groupby(['State','DATE']).max(numeric_only=True).reset_index()['PRCP']
-    #print(df.PRCP.max())
 
-    #df['PRCP'] = PRCP
+
+
+    df = df.groupby(['State', 'DATE'])[numeric_cols].mean().reset_index()
+
     df = df.dropna()
     df.DATE = pd.to_datetime(df.DATE)
     df.set_index('DATE', inplace=True)
-    print(df)
+
     dfs = []
-    print(df)
+
     
     for state in df.State.unique():
         df1 = df[df.State == state]
         df1['TAVG'] = (df1['MAX'] + df1['MIN']) / 2
         print(df1)
 
-        df2 = df1.resample('M').mean(numeric_only=True).reset_index()
-        PRCP = df1.resample('M').sum(numeric_only=True).reset_index()['PRCP']
+        df2 = df1.select_dtypes(include='number').resample('M').mean().reset_index()
+        PRCP = df1.select_dtypes(include='number').resample('M').sum().reset_index()['PRCP']
+        #df2 = df1.resample('M').mean(numeric_only=True).reset_index()
+
+        #PRCP = df1.resample('M').sum(numeric_only=True).reset_index()['PRCP']
         df2['State'] = state
         df2['PRCP'] = PRCP
 
