@@ -2,8 +2,10 @@ var chart;
 var chart2;
 var chart3;
 
-function main(content,state,year){
 
+
+function main(content,state,year){
+    
     updateStateSelect(content, state);
     var $firstDropdown = $('#firstDropdown');
     var $secondDropdown = $('#secondDropdown');
@@ -237,8 +239,9 @@ function main(content,state,year){
 
 
 
-
+    
     if ( content == 'WX'){
+
 	$firstDropdown.hide();	
         $secondDropdown.hide();	
 	$('#state_select').show()
@@ -246,24 +249,20 @@ function main(content,state,year){
 	$('#area').hide()
 	$('#downloadCsv').hide();
 
-
+	
 	if ( state == "sum"){
 	    state = "average";
 
-	}
-
-	let s;
-	if (typeof state === "string") {
-	    s = state.replace(" ","");
-	}else{
-	    s = state;
+	}else if (!state || state.trim() === "") {
+	    state = "average";
 	}
 	
+
+	let fileKey = state.replace(" ", "");
 	var csvUrl = './data/'+state+'_WX_output.csv';
 	var csvUrl2 = './data/'+state+'_WX_lrf.csv';
 	var csvUrl3 = './data/'+state+'_WX_historical.csv';
-	var csvUrl4 = './data/'+s+'_WX_mrf.csv';
-
+	var csvUrl4 = './data/' + fileKey + '_WX_mrf.csv';
 
 	document.getElementById('point-table').style.display = 'none';
 	document.getElementById('table-container').style.visibility = 'none';
